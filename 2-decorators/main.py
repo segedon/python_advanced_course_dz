@@ -9,7 +9,7 @@ def limit_args(max_value: int, mode: Literal["error", "clip"]):
         def wrapper(*args, **kwargs):
             numeric_types = (int, float)
             if mode == "clip":
-                args = (
+                args = tuple(
                     min(arg, max_value) if isinstance(arg, numeric_types) else arg
                     for arg in args
                 )
