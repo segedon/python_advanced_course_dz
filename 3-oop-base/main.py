@@ -33,7 +33,7 @@ class Hotel:
         self.bookings = []
 
     def add_room(self, room: Room):
-        self.rooms.append(room)
+        self.rooms.add(room)
 
     def get_free_rooms(self, date_: date) -> set[Room]:
         reserved_rooms = set(
