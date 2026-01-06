@@ -50,12 +50,13 @@ class AverageGradeStatistic(Statistic):
 
     def calculate(self) -> float:
         journal_items = self.journal_repository.get_all()
-
-        return sum(
-            item.grade
+        journal_items = [
+            item
             for item in journal_items
             if item.student_name == self.student_name and item.lesson == self.lesson
-        ) / len(journal_items)
+        ]
+
+        return sum(item.grade for item in journal_items) / len(journal_items)
 
 
 class ConsolerNotifier(Notifier):
