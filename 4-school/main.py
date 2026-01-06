@@ -15,9 +15,6 @@ class JournalRepository(ABC):
 
 
 class Statistic(ABC):
-    def __init__(self, journal_repository: JournalRepository) -> None:
-        self.journal_repository = journal_repository
-
     @abstractmethod
     def calculate(self) -> float: ...
 
@@ -44,9 +41,21 @@ class InMemoryJournalRepository(JournalRepository):
 
 
 class AverageGradeStatistic(Statistic):
+    def __init__(
+        self, journal_repository: JournalRepository, student_name: str, lesson: str
+    ):
+        self.journal_repository = journal_repository
+        self.student_name = student_name
+        self.lesson = lesson
+
     def calculate(self) -> float:
         journal_items = self.journal_repository.get_all()
-        return sum(item.grade for item in journal_items) / len(journal_items)
+
+        return sum(
+            item.grade
+            for item in journal_items
+            if item.student_name == self.student_name and item.lesson == self.lesson
+        ) / len(journal_items)
 
 
 class ConsolerNotifier(Notifier):
@@ -78,15 +87,19 @@ class Monitor:
 
 
 if __name__ == "__main__":
+    student = "Petr"
+    lesson = "math"
     journal_repository = InMemoryJournalRepository()
-    statistic = AverageGradeStatistic(journal_repository=journal_repository)
+    statistic = AverageGradeStatistic(
+        journal_repository=journal_repository, student_name=student, lesson=lesson
+    )
     notifier = ConsolerNotifier()
     trigger = LessThenValueTrigger(value=3.5)
     monitor = Monitor(statistic, trigger, notifier)
 
-    journal_repository.add(Journal("Petr", 5, "math"))
+    journal_repository.add(Journal(student, 5, lesson))
     # триггер не сработает
     monitor.monitor()
 
-    journal_repository.add(Journal("Alexandr", 1, "math"))
+    journal_repository.add(Journal(student, 1, lesson))
     monitor.monitor()
